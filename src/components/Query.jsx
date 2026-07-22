@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "../utils/cn";
 import { Play, RotateCcw, Terminal, PencilLine, Lock, Pause, SkipForward, Gauge, Trash2, Copy, Check } from "lucide-react";
-import { useState } from "react";
 
 const SPEED_OPTIONS = [
   { label: "0.5×", value: 0.5 },
@@ -27,6 +26,19 @@ export default function Query({
 }) {
   const isEditable = !isPlaying && !isFinished;
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        if (isEditable && !isFinished) {
+          onRun?.();
+        }
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isEditable, isFinished, onRun]);
 
   const handleCopy = async () => {
     try {
@@ -143,7 +155,7 @@ export default function Query({
           </div>
         ) : (
           <div className="text-[10px] text-zinc-600 font-mono hidden sm:block">
-            {isEditable ? "Edit the query above, then press Run" : ""}
+            {isEditable ? "Edit the query above, then press Run or Ctrl / Cmd + Enter" : ""}
           </div>
         )}
 
@@ -186,6 +198,7 @@ export default function Query({
               onClick={onRun}
               disabled={isFinished}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded bg-accent text-white text-xs font-medium transition-all hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95"
+              title="Run query (Ctrl / Cmd + Enter)"
             >
               <Play size={13} fill="currentColor" />
               Run Query
