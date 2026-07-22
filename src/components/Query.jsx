@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { cn } from "../utils/cn";
 import { Play, RotateCcw, Terminal, PencilLine, Lock, Pause, SkipForward, Gauge, Trash2, Copy, Check } from "lucide-react";
 import { useState } from "react";
@@ -27,10 +28,16 @@ export default function Query({
   const isEditable = !isPlaying && !isFinished;
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(value || queryLines.join("\n"));
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1500);
+    } catch (err) {
+      console.error("Copy failed", err);
+    }
   };
 
   return (
